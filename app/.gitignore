@@ -1,0 +1,41 @@
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+out/
+**/build/
+
+# Gradle files
+.gradle/
+!gradle-wrapper.jar
+
+# Local configuration (SDK path, keystore path, etc.)
+local.properties
+
+# IntelliJ / Android Studio files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Keystore files (don’t share secrets!)
+*.jks
+*.keystore
+
+# Google Services (if using Firebase)
+google-services.json
+
+# Log files
+*.log
+
+# macOS / Windows system files
+.DS_Store
+Thumbs.db
