@@ -16,4 +16,5 @@ class ValidationResult {
     String getMessage() {  // package-private method
         return message;
     }
+
 }

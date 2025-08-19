@@ -95,7 +95,7 @@ public class Board {
     }
 
 
-    private int[] getGridPos(int gridX, int gridY) {
+    public int[] getGridPos(int gridX, int gridY) {
         int tolerance = Math.round(holeSize / 2); // Smaller, more reasonable tolerance
 
         for (int i = 0; i < validPos2D.size(); i++) {

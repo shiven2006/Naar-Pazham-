@@ -10,38 +10,51 @@ import java.util.ArrayList;
 public class GameLogic {
     private final GameState gameState;
     private final Board board;
+    private final NetworkService networkService;
 
-    public GameLogic(GameState gameState, Board board) {
+    public GameLogic(GameState gameState, Board board, NetworkService networkService) {
         this.gameState = gameState;
         this.board = board;
+        this.networkService = new NetworkService();
     }
 
-    /**
-     * Validates and processes a piece placement attempt
-     * @param x Touch x coordinate
-     * @param y Touch y coordinate
-     * @return true if placement was successful, false otherwise
-     */
-    public ValidationResult validatePlacement(int x, int y) {
+    public interface PlacementCallback {
+        void onPlacementSuccess(ServerGameState gameState);
+        void onPlacementFailure(String message);
+    }
+
+    //async version
+    public void validatePlacement(int x, int y, String gameId, PlacementCallback callback) {
         Point validPos = board.findValidPos(x, y);
         if (validPos == null) {
-            return new ValidationResult(false, "Invalid Position");
-        }
-        if (gameState.isGameOver()) {
-            return new ValidationResult(false, "Game Over");
-        }
-        if (isOccupied(validPos.x, validPos.y)) {
-            return new ValidationResult(false, "Space is already occupied");
+            callback.onPlacementFailure("Invalid Position");
+            return;
         }
 
-        if (!gameState.canPlacePiece()) {
-            return new ValidationResult(false, "Can't place more pieces");
+        // Convert to board coordinates using the existing method
+        int[] boardPos = board.getGridPos(validPos.x, validPos.y);
+        if (boardPos[0] == -1) { // Invalid position
+            callback.onPlacementFailure("Invalid board position");
+            return;
         }
-        boolean isPlayer1 = gameState.getCurrentPlayer().isPlayer1();
-        Player newPiece = createNewPiece(validPos, isPlayer1);
-        gameState.addMove(newPiece, isPlayer1);
-        return new ValidationResult(true, "Piece placed successufully");
+
+        int boardX = boardPos[1]; // Column
+        int boardY = boardPos[0]; // Row
+
+        // Send to server
+        networkService.makeMove(gameId, boardX, boardY, new NetworkService.GameCallback() {
+            @Override
+            public void onSuccess(ServerGameState serverGameState) {
+                callback.onPlacementSuccess(serverGameState);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                callback.onPlacementFailure(errorMessage);
+            }
+        });
     }
+
     /**
      * Creates a new game piece at the specified valid position
      * @param validPoint The valid board position
@@ -239,7 +252,6 @@ public class GameLogic {
     private boolean isCurrentPlayersPiece(Player piece) {
         return piece.isPlayer1() == (gameState.getCurrentPlayer().isPlayer1());
     }
-
 
 }
 
