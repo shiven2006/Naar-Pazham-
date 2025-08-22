@@ -33,6 +33,13 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="24mm" />
+
+    <Button
+        android:id="@+id/new_game_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start New Game"
+        android:layout_margin="8dp" />
 </LinearLayout>
 
 <!-- Issue to fix in the future: WHen you click on occupied space during placement phase UI is not telling the suer that space  is occupied -->

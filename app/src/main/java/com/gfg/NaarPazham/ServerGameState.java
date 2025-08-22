@@ -10,6 +10,12 @@ public class ServerGameState {
     private boolean isPlayer1Turn = true;
     private String winner = null;
     private boolean isPlacementPhase = true;
+    private int totalMoves = 0;
+
+    //IDs for player
+    private String player1Id = null;
+    private String player2Id = null;
+    private boolean isPlayer1Assigned = false;
 
     // Constructors
     public ServerGameState() {}
@@ -36,4 +42,33 @@ public class ServerGameState {
 
     public boolean isPlacementPhase() { return isPlacementPhase; }
     public void setPlacementPhase(boolean placementPhase) { isPlacementPhase = placementPhase; }
+
+    public int getTotalMoves() {return totalMoves; }
+    public void setTotalMoves(int totalMoves) {this.totalMoves = totalMoves;}
+
+
+    // For player tracking (if you want to implement Option B later)
+    public String getPlayer1Id() {
+        return player1Id;
+    }
+
+    public void setPlayer1Id(String player1Id) {
+        this.player1Id = player1Id;
+    }
+
+    public String getPlayer2Id() {
+        return player2Id;
+    }
+
+    public void setPlayer2Id(String player2Id) {
+        this.player2Id = player2Id;
+    }
+
+    public boolean isPlayer1Assigned() {
+        return isPlayer1Assigned;
+    }
+
+    public void setPlayer1Assigned(boolean player1Assigned) {
+        this.isPlayer1Assigned = player1Assigned;
+    }
 }

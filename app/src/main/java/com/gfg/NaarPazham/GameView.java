@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-
 /**
  * Main game view - handles UI events and coordinates between game components
  */
@@ -29,8 +28,12 @@ public class GameView extends View{
     private Handler uiHandler = new Handler(Looper.getMainLooper());
     private Runnable turnUpdateRunnable = null;
 
+    // Game state
+    private String currentGameId = null;
+    private boolean isGameReady = false; // Add this flag
 
     private UIUpdateListener uiListener;
+
     public GameView(Context context, Player player1, Player player2) {
         super(context);
         gameState = new GameState(player1, player2);
@@ -51,7 +54,7 @@ public class GameView extends View{
 
     private void initializeComponents() {
         board = new Board();
-        gameLogic = new GameLogic(gameState, board);
+        gameLogic = new GameLogic(gameState, board, new NetworkService() );
         // GameRenderer will be initialized after we have screen dimensions
     }
 
@@ -80,11 +83,23 @@ public class GameView extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        // Check if system is ready
         if (!isInitialized) {
             return false; // Not ready to handle touch events yet
         }
+
+        // Check if game is ready
+        if (!isGameReady || currentGameId == null) {
+            if (uiListener != null) {
+                uiListener.updateStatus("Game not ready. Please start a new game first.");
+            }
+            return false;
+        }
+
         if (gameState.isGameOver()) {
-            uiListener.showGameOver("Player " + (gameState.getWinner().isPlayer1() ? "1" : "2") + " wins!");
+            if (uiListener != null) {
+                uiListener.showGameOver("Player " + (gameState.getWinner().isPlayer1() ? "1" : "2") + " wins!");
+            }
             return true;
         }
 
@@ -112,30 +127,39 @@ public class GameView extends View{
     }
 
     private void handlePlacement(int touchX, int touchY) {
-        ValidationResult placementSuccessful =  gameLogic.validatePlacement(touchX, touchY);
+        gameLogic.validatePlacement(touchX, touchY, currentGameId, new GameLogic.PlacementCallback() {
+            @Override
+            public void onPlacementSuccess(ServerGameState serverGameState) {
+                // 1. Convert server state to local state (includes winner!)
+                GameStateConverter.convertAndUpdateLocalState(serverGameState, gameState, board);
+                System.out.println("Received from server - totalMoves: " + serverGameState.getTotalMoves());
+                System.out.println("Player1 moves: " + serverGameState.getPlayer1Moves().size());
+                System.out.println("Player2 moves: " + serverGameState.getPlayer2Moves().size());
 
-        if (placementSuccessful.isSuccess()) {
-            Player winner = gameLogic.checkAndSetWinner();
-            if (winner != null) {
-                if (uiListener != null) {
-                    uiListener.showGameOver("Player " + (winner.isPlayer1() ? "1" : "2"));
+                // 2. Check if game is over (server already determined this)
+                if (gameState.isGameOver()) {
+                    if (uiListener != null) {
+                        String winnerName = gameState.getWinner().isPlayer1() ? "Player 1" : "Player 2";
+                        uiListener.showGameOver(winnerName + " wins!");
+                    }
+                } else {
+                    // 3. Update turn status for ongoing game
+                    if (uiListener != null) {
+                        String currentPlayerName = gameState.getCurrentPlayer().isPlayer1() ? "Player 1" : "Player 2";
+                        uiListener.updateStatus(currentPlayerName + "'s Turn");
+                    }
                 }
-            }
-            else {
-                if (uiListener != null) {
-                    showTemporaryMsg(placementSuccessful.getMessage());
-                }
-            }
-            invalidate();
 
-        }
-        else {
-            if (!gameState.isGameOver() && uiListener != null) {
-                uiListener.updateStatus("Player " + (gameState.getCurrentPlayer().isPlayer1() ? "1" : "2") + "'s Turn");
+                // 4. Redraw the game
+                invalidate();
             }
-        }
+
+            @Override
+            public void onPlacementFailure(String message) {
+                showTemporaryMsg(message);
+            }
+        });
     }
-
 
     private void handleMovement(Point boardPos) {
         Player pieceAtPosition = gameLogic.findPlayerAtPosition(boardPos);
@@ -163,7 +187,7 @@ public class GameView extends View{
                     Player winner = gameLogic.checkAndSetWinner();
                     if (winner != null) {
                         if (uiListener != null) {
-                            uiListener.showGameOver("Player " + (winner.isPlayer1() ? "1" : "2"));
+                            uiListener.showGameOver("Player " + (winner.isPlayer1() ? "1" : "2") + " wins!");
                         }
                     } else {
                         // Only update turn status if game is NOT over
@@ -228,17 +252,59 @@ public class GameView extends View{
         this.uiListener = listener;
     }
 
-
     public void resetGame () {
         gameState.reset();
+        // Reset game ready state
+        isGameReady = false;
+        currentGameId = null;
+
         if (isInitialized) {
             invalidate(); // Trigger redraw
         }
         if (uiListener != null) {
-            uiListener.updateStatus("New Game started. Player 1's Turn");
+            uiListener.updateStatus("Game reset. Tap 'Start New Game' to begin");
         }
     }
 
+    // Updated createNewGame method with proper callbacks
+    public void createNewGame() {
+        NetworkService networkService = new NetworkService();
+        networkService.createGame(new NetworkService.GameCallback() {
+            @Override
+            public void onSuccess(ServerGameState gameState) {
+                currentGameId = gameState.getGameId(); // Save the real game ID
+                isGameReady = true; // Mark game as ready
+
+                // Reset local game state to match server
+                GameView.this.gameState.reset();
+
+                // Notify MainActivity of successful creation
+                if (getContext() instanceof MainActivity) {
+                    ((MainActivity) getContext()).onGameCreated();
+                }
+
+                // Update UI
+                if (uiListener != null) {
+                    uiListener.updateStatus("Game ready! Player 1's turn");
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                currentGameId = null;
+                isGameReady = false;
+
+                // Notify MainActivity of failure
+                if (getContext() instanceof MainActivity) {
+                    ((MainActivity) getContext()).onGameCreationFailed(errorMessage);
+                }
+
+                if (uiListener != null) {
+                    uiListener.updateStatus("Failed to create game: " + errorMessage);
+                }
+            }
+        });
+    }
 }
 
 interface UIUpdateListener {

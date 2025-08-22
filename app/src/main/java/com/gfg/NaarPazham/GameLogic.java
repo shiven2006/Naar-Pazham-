@@ -15,7 +15,7 @@ public class GameLogic {
     public GameLogic(GameState gameState, Board board, NetworkService networkService) {
         this.gameState = gameState;
         this.board = board;
-        this.networkService = new NetworkService();
+        this.networkService = networkService;
     }
 
     public interface PlacementCallback {
@@ -23,8 +23,18 @@ public class GameLogic {
         void onPlacementFailure(String message);
     }
 
-    //async version
+    // Add movement callback interface
+    public interface MovementCallback {
+        void onMovementSuccess(ServerGameState gameState);
+        void onMovementFailure(String message);
+    }
+
+    //async version for placement
     public void validatePlacement(int x, int y, String gameId, PlacementCallback callback) {
+        if (gameId == null) {
+            callback.onPlacementFailure("Game is not ready yet. Please wait.");
+            return;
+        }
         Point validPos = board.findValidPos(x, y);
         if (validPos == null) {
             callback.onPlacementFailure("Invalid Position");
@@ -41,7 +51,7 @@ public class GameLogic {
         int boardX = boardPos[1]; // Column
         int boardY = boardPos[0]; // Row
 
-        // Send to server
+        // Send to server for placement
         networkService.makeMove(gameId, boardX, boardY, new NetworkService.GameCallback() {
             @Override
             public void onSuccess(ServerGameState serverGameState) {
@@ -51,6 +61,73 @@ public class GameLogic {
             @Override
             public void onFailure(String errorMessage) {
                 callback.onPlacementFailure(errorMessage);
+            }
+        });
+    }
+
+    // NEW: Server-side movement validation
+    public void validateMovement(Point fromPos, Point toPos, String gameId, MovementCallback callback) {
+        if (gameId == null) {
+            callback.onMovementFailure("Game is not ready yet. Please wait.");
+            return;
+        }
+
+        if (gameState.isGameOver()) {
+            callback.onMovementFailure("Game is over");
+            return;
+        }
+
+        if (!gameState.isMovementPhase()) {
+            callback.onMovementFailure("Not in movement phase");
+            return;
+        }
+
+        // Basic client-side validation first
+        Player pieceToMove = getPieceAtPosition(fromPos);
+        if (pieceToMove == null) {
+            callback.onMovementFailure("No piece at selected position");
+            return;
+        }
+
+        if (!isCurrentPlayersPiece(pieceToMove)) {
+            callback.onMovementFailure("Can't move other player's piece");
+            return;
+        }
+
+        if (!board.areAdjacent(fromPos, toPos)) {
+            callback.onMovementFailure("Can only move to adjacent positions");
+            return;
+        }
+
+        if (isOccupied(toPos.x, toPos.y)) {
+            callback.onMovementFailure("Can't move to occupied position");
+            return;
+        }
+
+        // Convert positions to board coordinates
+        int[] fromBoardPos = board.getGridPos(fromPos.x, fromPos.y);
+        int[] toBoardPos = board.getGridPos(toPos.x, toPos.y);
+
+        if (fromBoardPos[0] == -1 || toBoardPos[0] == -1) {
+            callback.onMovementFailure("Invalid board position");
+            return;
+        }
+
+        int fromX = fromBoardPos[1]; // Column
+        int fromY = fromBoardPos[0]; // Row
+        int toX = toBoardPos[1]; // Column
+        int toY = toBoardPos[0]; // Row
+
+        // Send movement request to server
+        networkService.makeMoveMovement(gameId, fromX, fromY, toX, toY, new NetworkService.GameCallback() {
+            @Override
+            public void onSuccess(ServerGameState serverGameState) {
+                callback.onMovementSuccess(serverGameState);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                callback.onMovementFailure(errorMessage);
             }
         });
     }
@@ -205,7 +282,7 @@ public class GameLogic {
         return null;
     }
 
-
+    // DEPRECATED: Keep for backward compatibility but don't use
     public ValidationResult validateMove(Point fromPos, Point toPos) {
         if (gameState.isGameOver()) {
             return new ValidationResult(false, "Game is over");
@@ -237,7 +314,7 @@ public class GameLogic {
         int newY = toPos.y - spriteSize / 2;
         pieceToMove.setPos(newX, newY);
         return new ValidationResult(true, "Move Successful");
-}
+    }
 
     private Player getPieceAtPosition(Point boardPos) {
         // Check current player's pieces first
@@ -252,6 +329,4 @@ public class GameLogic {
     private boolean isCurrentPlayersPiece(Player piece) {
         return piece.isPlayer1() == (gameState.getCurrentPlayer().isPlayer1());
     }
-
 }
-

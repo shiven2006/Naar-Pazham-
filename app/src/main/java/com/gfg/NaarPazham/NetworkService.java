@@ -73,7 +73,7 @@ public class NetworkService {
 
     public void makeMove(String gameId, int boardX, int boardY, GameCallback callback) {
         Request request = new Request.Builder()
-                .url(BASE_URL + "/" + gameId + "/moves")  // ← Fixed: "/moves" not "/move"
+                .url(BASE_URL + "/" + gameId + "/moves")  // Fixed: "/moves" not "/move"
                 .post(RequestBody.create(gson.toJson(new MoveRequest(boardX, boardY)),
                         MediaType.parse("application/json")))
                 .build();
@@ -88,6 +88,7 @@ public class NetworkService {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
+                    System.out.println("Raw JSON from server: " + jsonResponse);
                     ServerGameState gameState = gson.fromJson(jsonResponse, ServerGameState.class);
                     callback.onSuccess(gameState);
                 } else {
@@ -96,6 +97,36 @@ public class NetworkService {
             }
         });
     }
+
+    // UPDATED METHOD: Handle movement requests using unified MoveRequest class
+    public void makeMoveMovement(String gameId, int fromX, int fromY, int toX, int toY, GameCallback callback) {
+        // Use the unified MoveRequest constructor for movement
+        MoveRequest movementRequest = new MoveRequest(fromX, fromY, toX, toY);
+
+        // Use the SAME endpoint as placement - your backend handles both in one endpoint
+        Request request = new Request.Builder()
+                .url(BASE_URL + "/" + gameId + "/moves")  // Same endpoint as placement!
+                .post(RequestBody.create(gson.toJson(movementRequest), MediaType.parse("application/json")))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Network error: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String jsonResponse = response.body().string();
+                    System.out.println("Movement response JSON: " + jsonResponse);
+                    ServerGameState gameState = gson.fromJson(jsonResponse, ServerGameState.class);
+                    callback.onSuccess(gameState);
+                } else {
+                    String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                    callback.onFailure("Server error: " + response.code() + " - " + errorBody);
+                }
+            }
+        });
+    }
 }
-
-

@@ -1,8 +1,12 @@
 package com.gfg.NaarPazham;
 
+import com.google.gson.annotations.SerializedName;
+
 public class PlayerMove {
     private int boardX;
     private int boardY;
+
+    @SerializedName("player1")  // Maps JSON "player1" to this field
     private boolean isPlayer1;
 
     public PlayerMove() {}
