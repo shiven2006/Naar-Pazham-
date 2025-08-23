@@ -12,10 +12,16 @@ public class ServerGameState {
     private boolean isPlacementPhase = true;
     private int totalMoves = 0;
 
-    //IDs for player
+    // Enhanced multiplayer fields
     private String player1Id = null;
     private String player2Id = null;
     private boolean isPlayer1Assigned = false;
+    private boolean isPlayer2Assigned = false;
+    private boolean gameStarted = false; // Game can start only when both players joined
+    private long lastActivity = System.currentTimeMillis(); // For timeout detection
+
+    // Game status enum-like fields
+    private String gameStatus = "WAITING_FOR_PLAYERS"; // WAITING_FOR_PLAYERS, ACTIVE, FINISHED, ABANDONED
 
     // Constructors
     public ServerGameState() {}
@@ -24,7 +30,7 @@ public class ServerGameState {
         this.gameId = gameId;
     }
 
-    // Getters and setters (we'll add these)
+    // Basic getters and setters
     public String getGameId() { return gameId; }
     public void setGameId(String gameId) { this.gameId = gameId; }
 
@@ -43,32 +49,54 @@ public class ServerGameState {
     public boolean isPlacementPhase() { return isPlacementPhase; }
     public void setPlacementPhase(boolean placementPhase) { isPlacementPhase = placementPhase; }
 
-    public int getTotalMoves() {return totalMoves; }
-    public void setTotalMoves(int totalMoves) {this.totalMoves = totalMoves;}
+    public int getTotalMoves() { return totalMoves; }
+    public void setTotalMoves(int totalMoves) { this.totalMoves = totalMoves; }
 
+    // Enhanced multiplayer getters and setters
+    public String getPlayer1Id() { return player1Id; }
+    public void setPlayer1Id(String player1Id) { this.player1Id = player1Id; }
 
-    // For player tracking (if you want to implement Option B later)
-    public String getPlayer1Id() {
-        return player1Id;
+    public String getPlayer2Id() { return player2Id; }
+    public void setPlayer2Id(String player2Id) { this.player2Id = player2Id; }
+
+    public boolean isPlayer1Assigned() { return isPlayer1Assigned; }
+    public void setPlayer1Assigned(boolean player1Assigned) { this.isPlayer1Assigned = player1Assigned; }
+
+    public boolean isPlayer2Assigned() { return isPlayer2Assigned; }
+    public void setPlayer2Assigned(boolean player2Assigned) { this.isPlayer2Assigned = player2Assigned; }
+
+    public boolean isGameStarted() { return gameStarted; }
+    public void setGameStarted(boolean gameStarted) { this.gameStarted = gameStarted; }
+
+    public long getLastActivity() { return lastActivity; }
+    public void setLastActivity(long lastActivity) { this.lastActivity = lastActivity; }
+
+    public String getGameStatus() { return gameStatus; }
+    public void setGameStatus(String gameStatus) { this.gameStatus = gameStatus; }
+
+    // Convenience methods
+    public boolean bothPlayersAssigned() {
+        return isPlayer1Assigned && isPlayer2Assigned;
     }
 
-    public void setPlayer1Id(String player1Id) {
-        this.player1Id = player1Id;
+    public boolean isPlayerInGame(String playerId) {
+        return (player1Id != null && player1Id.equals(playerId)) ||
+                (player2Id != null && player2Id.equals(playerId));
     }
 
-    public String getPlayer2Id() {
-        return player2Id;
+    public boolean isGameActive() {
+        return "ACTIVE".equals(gameStatus);
     }
 
-    public void setPlayer2Id(String player2Id) {
-        this.player2Id = player2Id;
+    public boolean isWaitingForPlayers() {
+        return "WAITING_FOR_PLAYERS".equals(gameStatus);
     }
 
-    public boolean isPlayer1Assigned() {
-        return isPlayer1Assigned;
+    public boolean isGameFinished() {
+        return "FINISHED".equals(gameStatus) || winner != null;
     }
 
-    public void setPlayer1Assigned(boolean player1Assigned) {
-        this.isPlayer1Assigned = player1Assigned;
+    public void updateActivity() {
+        this.lastActivity = System.currentTimeMillis();
     }
 }

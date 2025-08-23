@@ -9,6 +9,9 @@ public class MoveRequest {
     private Integer fromY;  // Source Y position (null for placement phase)
     private boolean isMovement = false;  // Flag to indicate if this is a movement vs placement
 
+    // ADD: Player authentication
+    private String playerId;  // Player ID for authentication
+
     // Default constructor
     public MoveRequest() {}
 
@@ -43,4 +46,8 @@ public class MoveRequest {
 
     public boolean isMovement() { return isMovement; }
     public void setMovement(boolean movement) { this.isMovement = movement; }
+
+    // NEW: Player ID getter and setter
+    public String getPlayerId() { return playerId; }
+    public void setPlayerId(String playerId) { this.playerId = playerId; }
 }

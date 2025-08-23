@@ -3,43 +3,115 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:padding="16dp">
 
-    <!-- Custom GameView -->
+    <!-- Game ID Display -->
+    <TextView
+        android:id="@+id/game_id_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No active game"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:background="#E3F2FD"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <!-- Status Text -->
     <TextView
         android:id="@+id/status_text"
         android:layout_width="match_parent"
-        android:layout_height="182dp"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="Player 1's Turn"
-        android:textSize="24sp"
+        android:layout_height="wrap_content"
+        android:text="Start a new game or join an existing one"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:padding="12dp"
+        android:background="#F5F5F5"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/player_role_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player Role"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:layout_marginTop="24dp"/>
+        android:visibility="gone" />
 
-
+    <!-- Game View -->
     <com.gfg.NaarPazham.GameView
         android:id="@+id/game_view"
         android:layout_width="match_parent"
-        android:layout_height="404dp"
-        android:layout_weight="1" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF" />
 
-    <Button
-        android:id="@+id/reset_button"
+    <!-- Control Buttons Container -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reset Game"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="24mm" />
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
 
-    <Button
-        android:id="@+id/new_game_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start New Game"
-        android:layout_margin="8dp" />
+        <!-- Primary Action Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/new_game_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Start New Game"
+                android:background="#4CAF50"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/join_game_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Join Game"
+                android:background="#2196F3"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <!-- Secondary Action Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/share_game_id_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Share Game ID"
+                android:background="#FF9800"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/reset_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Reset Game"
+                android:background="#F44336"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>
-
-<!-- Issue to fix in the future: WHen you click on occupied space during placement phase UI is not telling the suer that space  is occupied -->

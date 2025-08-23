@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 /**
  * Handles game logic including piece placement validation and piece creation
+ * FIXED: Proper NetworkService integration and player authentication
  */
 public class GameLogic {
     private final GameState gameState;
@@ -23,27 +24,34 @@ public class GameLogic {
         void onPlacementFailure(String message);
     }
 
-    // Add movement callback interface
     public interface MovementCallback {
         void onMovementSuccess(ServerGameState gameState);
         void onMovementFailure(String message);
     }
 
-    //async version for placement
-    public void validatePlacement(int x, int y, String gameId, PlacementCallback callback) {
+    /**
+     * FIXED: Async placement validation with proper NetworkService calls
+     */
+    public void validatePlacement(int x, int y, String gameId, String playerId, PlacementCallback callback) {
         if (gameId == null) {
             callback.onPlacementFailure("Game is not ready yet. Please wait.");
             return;
         }
+
+        if (playerId == null) {
+            callback.onPlacementFailure("Player ID is missing. Please restart the game.");
+            return;
+        }
+
         Point validPos = board.findValidPos(x, y);
         if (validPos == null) {
             callback.onPlacementFailure("Invalid Position");
             return;
         }
 
-        // Convert to board coordinates using the existing method
+        // Convert to board coordinates
         int[] boardPos = board.getGridPos(validPos.x, validPos.y);
-        if (boardPos[0] == -1) { // Invalid position
+        if (boardPos[0] == -1) {
             callback.onPlacementFailure("Invalid board position");
             return;
         }
@@ -51,8 +59,8 @@ public class GameLogic {
         int boardX = boardPos[1]; // Column
         int boardY = boardPos[0]; // Row
 
-        // Send to server for placement
-        networkService.makeMove(gameId, boardX, boardY, new NetworkService.GameCallback() {
+        // FIXED: Use NetworkService properly for placement
+        networkService.makeMove(gameId, boardX, boardY, playerId, new NetworkService.GameCallback() {
             @Override
             public void onSuccess(ServerGameState serverGameState) {
                 callback.onPlacementSuccess(serverGameState);
@@ -65,10 +73,17 @@ public class GameLogic {
         });
     }
 
-    // NEW: Server-side movement validation
-    public void validateMovement(Point fromPos, Point toPos, String gameId, MovementCallback callback) {
+    /**
+     * FIXED: Async movement validation with proper NetworkService calls
+     */
+    public void validateMovement(Point fromPos, Point toPos, String gameId, String playerId, MovementCallback callback) {
         if (gameId == null) {
             callback.onMovementFailure("Game is not ready yet. Please wait.");
+            return;
+        }
+
+        if (playerId == null) {
+            callback.onMovementFailure("Player ID is missing. Please restart the game.");
             return;
         }
 
@@ -118,8 +133,8 @@ public class GameLogic {
         int toX = toBoardPos[1]; // Column
         int toY = toBoardPos[0]; // Row
 
-        // Send movement request to server
-        networkService.makeMoveMovement(gameId, fromX, fromY, toX, toY, new NetworkService.GameCallback() {
+        // FIXED: Use NetworkService properly for movement
+        networkService.makeMoveMovement(gameId, fromX, fromY, toX, toY, playerId, new NetworkService.GameCallback() {
             @Override
             public void onSuccess(ServerGameState serverGameState) {
                 callback.onMovementSuccess(serverGameState);
@@ -133,27 +148,7 @@ public class GameLogic {
     }
 
     /**
-     * Creates a new game piece at the specified valid position
-     * @param validPoint The valid board position
-     * @param isPlayer1 Whether this piece belongs to player 1
-     * @return The created Player object
-     */
-    private Player createNewPiece(Point validPoint, boolean isPlayer1) {
-        int offset = Math.round(board.getCellSize() / 5) / 2;
-        int spriteSize = board.getHoleSize() * 2; // Assuming both players have same sprite size
-
-        // Position player so its CENTER is at validPoint (like holes)
-        int playerX = validPoint.x - spriteSize / 2;
-        int playerY = validPoint.y - spriteSize / 2;
-
-        return new Player(playerX, playerY, spriteSize, isPlayer1);
-    }
-
-    /**
      * Checks if a board position is occupied by any player's piece
-     * @param boardX X coordinate of board position (center point)
-     * @param boardY Y coordinate of board position (center point)
-     * @return true if position is occupied
      */
     private boolean isOccupied(int boardX, int boardY) {
         int spriteSize = board.getHoleSize() * 2;
@@ -214,7 +209,7 @@ public class GameLogic {
             }
         }
 
-        return false; // No three in a row found
+        return false;
     }
 
     // Helper method to check if three points form a line
@@ -230,7 +225,6 @@ public class GameLogic {
         }
 
         // Check diagonal using cross product (slope check)
-        // Cross product = 0 means points are collinear
         int crossProduct = (p2.y - p1.y) * (p3.x - p1.x) - (p3.y - p1.y) * (p2.x - p1.x);
 
         // Points are collinear AND it's actually a diagonal (not horizontal/vertical)
@@ -252,7 +246,7 @@ public class GameLogic {
         }
         return null;
     }
-    // Add this method to check current game winner
+
     public Player getWinner() {
         return gameState.getWinner();
     }
@@ -280,6 +274,20 @@ public class GameLogic {
             }
         }
         return null;
+    }
+
+    private Player getPieceAtPosition(Point boardPos) {
+        // Check current player's pieces first
+        for (Player player : gameState.getCurrentPlayerMoves()) {
+            if (isPlayerAtPosition(player, boardPos)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    private boolean isCurrentPlayersPiece(Player piece) {
+        return piece.isPlayer1() == (gameState.getCurrentPlayer().isPlayer1());
     }
 
     // DEPRECATED: Keep for backward compatibility but don't use
@@ -314,19 +322,5 @@ public class GameLogic {
         int newY = toPos.y - spriteSize / 2;
         pieceToMove.setPos(newX, newY);
         return new ValidationResult(true, "Move Successful");
-    }
-
-    private Player getPieceAtPosition(Point boardPos) {
-        // Check current player's pieces first
-        for (Player player : gameState.getCurrentPlayerMoves()) {
-            if (isPlayerAtPosition(player, boardPos)) {
-                return player;
-            }
-        }
-        return null;
-    }
-
-    private boolean isCurrentPlayersPiece(Player piece) {
-        return piece.isPlayer1() == (gameState.getCurrentPlayer().isPlayer1());
     }
 }
