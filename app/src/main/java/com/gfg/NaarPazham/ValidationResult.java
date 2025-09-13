@@ -1,20 +1,20 @@
 package com.gfg.NaarPazham;
 
-class ValidationResult {
-    private boolean success;
-    private String message;
+// NEW: ValidationResult helper class matching GameController's approach
+public  class ValidationResult {
+    private final boolean success;
+    private final String message;
 
-    ValidationResult(boolean success, String message) {
+    public ValidationResult(boolean success, String message) {
         this.success = success;
         this.message = message;
     }
 
-    boolean isSuccess() {  // package-private method
+    public boolean isSuccess() {
         return success;
     }
 
-    String getMessage() {  // package-private method
+    public String getMessage() {
         return message;
     }
-
 }

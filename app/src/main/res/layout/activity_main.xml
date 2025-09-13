@@ -3,105 +3,368 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp">
 
-    <!-- Game ID Display -->
-    <TextView
-        android:id="@+id/game_id_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No active game"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:background="#E3F2FD"
-        android:padding="8dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
-    <!-- Status Text -->
-    <TextView
-        android:id="@+id/status_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start a new game or join an existing one"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:padding="12dp"
-        android:background="#F5F5F5"
-        android:layout_marginBottom="16dp" />
-
-    <TextView
-        android:id="@+id/player_role_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Player Role"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
-
-    <!-- Game View -->
+    <!-- Game View (moved to top, taking most space) -->
     <com.gfg.NaarPazham.GameView
         android:id="@+id/game_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#FFFFFF" />
+        android:background="#F8F8F8"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Control Buttons Container -->
+    <!-- Status Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="16dp">
+        android:padding="12dp"
+        android:background="@drawable/status_section_background">
 
-        <!-- First Row: Join Game and Share Game ID -->
+        <!-- Current Status -->
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ready to play"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="@drawable/status_text_background"
+            android:textColor="#1976D2"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Game Info Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@drawable/game_info_background">
+
+            <TextView
+                android:id="@+id/game_id_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Local Game Mode"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#666666"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/player_role_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Two players on same device"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#2E7D32" />
+
+        </LinearLayout>
+
+        <!-- LOCAL MODE CONTROLS -->
+        <LinearLayout
+            android:id="@+id/local_mode_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Local Game Info -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp"
+                android:background="@drawable/game_info_background">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Player 1"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#F44336" />
+
+                    <View
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#F44336" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VS"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#757575"
+                    android:layout_gravity="center"
+                    android:padding="8dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Player 2"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#2196F3" />
+
+                    <View
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#2196F3" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Local Game Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/start_local_game_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:text="Start Game"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/reset_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:text="Reset"
+                    android:textSize="14sp"
+                    android:backgroundTint="#757575"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- ONLINE MODE CONTROLS -->
+        <LinearLayout
+            android:id="@+id/online_mode_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Queue Info Panel -->
+            <LinearLayout
+                android:id="@+id/queue_info_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp"
+                android:padding="16dp"
+                android:background="@drawable/queue_panel_background"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/queue_status_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Looking for opponent..."
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#FF9800"
+                    android:layout_marginBottom="12dp" />
+
+                <ProgressBar
+                    android:id="@+id/queue_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:indeterminate="true"
+                    android:progressTint="#FF9800" />
+
+                <TextView
+                    android:id="@+id/queue_time_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Searching for 0:30"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/queue_position_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Queue position: 1"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/queue_status_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Searching for opponent..."
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/estimated_wait_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Est. wait: 1:30"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/cancel_queue_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:text="Cancel"
+                    android:textSize="12sp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="#FFFFFF"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
+
+            </LinearLayout>
+
+            <!-- Legacy Queue Status Text (for backward compatibility) -->
+            <TextView
+                android:id="@+id/queue_status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Not in queue"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="#666666"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
+            <!-- Online Game Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <Button
+                    android:id="@+id/find_match_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:text="Find Match"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/cancel_match_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="Cancel"
+                    android:textSize="14sp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="#FFFFFF"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/leave_game_button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:text="Leave Game"
+                    android:textSize="14sp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="#FFFFFF"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Mode Selection Section (moved to bottom) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:padding="12dp"
+            android:background="@drawable/mode_selection_background"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/join_game_button"
+            <TextView
+                android:id="@+id/current_mode_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Join Game"
-                android:backgroundTint="#2196F3"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp" />
+                android:text="Local Mode"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:drawableStart="@drawable/ic_local_play"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/share_game_id_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Share Game ID"
-                android:backgroundTint="#FF9800"
+            <Button
+                android:id="@+id/switch_mode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Switch to Online"
+                android:textSize="12sp"
+                android:backgroundTint="#4CAF50"
                 android:textColor="#FFFFFF"
-                android:layout_marginStart="4dp"
-                android:visibility="gone" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
 
         </LinearLayout>
-
-        <!-- Reset Game Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/reset_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Reset Game"
-            android:backgroundTint="#F44336"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Start New Game Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/new_game_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start New Game"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 

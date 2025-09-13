@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+<!--&lt;!&ndash;     For development only &ndash;&gt;-->
+<!--    <domain-config cleartextTrafficPermitted="true">-->
+<!--        <domain includeSubdomains="true">10.0.2.2</domain>-->
+<!--    </domain-config>-->
+
+    <!-- Production should use HTTPS -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">production-env.eba-nzvhkrn5.us-east-1.elasticbeanstalk.com</domain>
     </domain-config>
 </network-security-config>

@@ -79,6 +79,8 @@ public class ServerGameState {
         return isPlayer1Assigned && isPlayer2Assigned;
     }
 
+
+
     public boolean isPlayerInGame(String playerId) {
         return (player1Id != null && player1Id.equals(playerId)) ||
                 (player2Id != null && player2Id.equals(playerId));
@@ -98,5 +100,53 @@ public class ServerGameState {
 
     public void updateActivity() {
         this.lastActivity = System.currentTimeMillis();
+    }
+
+    // Add these missing methods that the server expects:
+    public boolean isActive() {
+        return "ACTIVE".equals(gameStatus);
+    }
+
+    public boolean isFinished() {
+        return "FINISHED".equals(gameStatus) || winner != null;
+    }
+
+    // Add player activity tracking (server has these fields)
+    private Long player1LastActivity = null;
+    private Long player2LastActivity = null;
+
+    public Long getPlayer1LastActivity() { return player1LastActivity; }
+    public void setPlayer1LastActivity(Long player1LastActivity) { this.player1LastActivity = player1LastActivity; }
+
+    private void updateLastActivity() {
+        // This should be called in parseServerGameState
+        this.lastActivity = System.currentTimeMillis();
+    }
+
+    public Long getPlayer2LastActivity() { return player2LastActivity; }
+    public void setPlayer2LastActivity(Long player2LastActivity) { this.player2LastActivity = player2LastActivity; }
+
+    public void updatePlayerActivity(String playerId) {
+        long currentTime = System.currentTimeMillis();
+        if (playerId.equals(player1Id)) {
+            player1LastActivity = currentTime;
+        } else if (playerId.equals(player2Id)) {
+            player2LastActivity = currentTime;
+        }
+        updateActivity();
+    }
+
+    // Add method for game staleness check
+    public boolean isStale(long timeoutMs) {
+        return (System.currentTimeMillis() - lastActivity) > timeoutMs;
+    }
+
+    // Add method for current player placement check
+    public boolean canCurrentPlayerPlace() {
+        if (isPlayer1Turn) {
+            return player1Moves.size() < 3;
+        } else {
+            return player2Moves.size() < 3;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.gfg.NaarPazham;
 
 import android.graphics.Point;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +95,34 @@ public class Board {
         return false;
     }
 
+    // Add this method to Board.java class
+
+    /**
+     * Get screen position from grid coordinates
+     * Converts grid row/col to actual screen coordinates
+     * @param gridRow The grid row (0-2)
+     * @param gridCol The grid column (0-2)
+     * @return int array with [x, y] screen coordinates, or null if invalid
+     */
+    public int[] getScreenPosition(int gridRow, int gridCol) {
+        try {
+            if (validPos2D == null ||
+                    gridRow < 0 || gridRow >= validPos2D.size() ||
+                    gridCol < 0 || gridCol >= validPos2D.get(gridRow).size()) {
+                return null;
+            }
+
+            Point boardPoint = validPos2D.get(gridRow).get(gridCol);
+            if (boardPoint == null) {
+                return null;
+            }
+
+            return new int[]{boardPoint.x, boardPoint.y};
+        } catch (Exception e) {
+            Log.e("Board", "Error getting screen position for grid (" + gridCol + "," + gridRow + ")", e);
+            return null;
+        }
+    }
 
     public int[] getGridPos(int gridX, int gridY) {
         int tolerance = Math.round(holeSize / 2); // Smaller, more reasonable tolerance
@@ -123,7 +152,7 @@ public class Board {
             }
             newArr.add(rowList);
         }
-        int i = -1, j = -1;
+        int i, j;
 
         //i for row, j for col
         for (Point p : array) {
@@ -133,7 +162,7 @@ public class Board {
             else if (p.y == centerPoint.y) {
                 i = 1;
             }
-            else if (p.y > centerPoint.y) {
+            else {
                 i = 2;
             }
 
@@ -143,7 +172,7 @@ public class Board {
             else if (p.x == centerPoint.x) {
                 j = 1;
             }
-            else if (p.x > centerPoint.x) {
+            else {
                 j = 2;
             }
             newArr.get(i).set(j,p);
