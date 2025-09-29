@@ -5,14 +5,39 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <!-- Game View (moved to top, taking most space) -->
+    <!-- Game View (starts with normal height, dynamically adjusted by code) -->
     <com.gfg.NaarPazham.GameView
         android:id="@+id/game_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0.75"
         android:background="#F8F8F8"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="4dp" />
+
+    <!-- Rules Section (right above GameView) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginBottom="4dp">
+
+        <Button
+            android:id="@+id/rules_button"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Rules"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:backgroundTint="#FF9800"
+            android:textColor="#FFFFFF"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:drawableStart="@drawable/ic_help"
+            android:drawablePadding="6dp"
+            android:elevation="2dp" />
+
+    </LinearLayout>
 
     <!-- Status Section -->
     <LinearLayout
@@ -184,14 +209,14 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <!-- Queue Info Panel -->
+            <!-- Queue Info Panel (optimized for compact display) -->
             <LinearLayout
                 android:id="@+id/queue_info_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="12dp"
-                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
                 android:background="@drawable/queue_panel_background"
                 android:visibility="gone">
 
@@ -200,73 +225,81 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Looking for opponent..."
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:gravity="center"
                     android:textColor="#FF9800"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="8dp" />
 
                 <ProgressBar
                     android:id="@+id/queue_progress"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_height="6dp"
+                    android:layout_marginBottom="8dp"
                     android:indeterminate="true"
                     android:progressTint="#FF9800" />
 
-                <TextView
-                    android:id="@+id/queue_time_text"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Searching for 0:30"
-                    android:textSize="14sp"
-                    android:gravity="center"
-                    android:textColor="#424242"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/queue_position_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Queue position: 1"
-                    android:textSize="14sp"
-                    android:gravity="center"
-                    android:textColor="#424242"
-                    android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/queue_time_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Searching for 0:30"
+                        android:textSize="12sp"
+                        android:gravity="start"
+                        android:textColor="#424242" />
+
+                    <TextView
+                        android:id="@+id/queue_position_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Queue position: 1"
+                        android:textSize="12sp"
+                        android:gravity="end"
+                        android:textColor="#424242" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/queue_status_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Searching for opponent..."
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:gravity="center"
                     android:textColor="#666666"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="6dp" />
 
                 <TextView
                     android:id="@+id/estimated_wait_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Est. wait: 1:30"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:gravity="center"
                     android:textColor="#666666"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     android:visibility="gone" />
 
                 <Button
                     android:id="@+id/cancel_queue_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="32dp"
                     android:layout_gravity="center"
                     android:text="Cancel"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:backgroundTint="#F44336"
                     android:textColor="#FFFFFF"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp" />
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
             </LinearLayout>
 

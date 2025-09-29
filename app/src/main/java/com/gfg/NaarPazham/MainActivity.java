@@ -55,7 +55,10 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
     private Button resetButton;
     private Button findMatchButton;
     private Button cancelMatchButton;
+    private Button rulesButton;
     private OnBackPressedCallback backPressedCallback;
+    private AlertDialog currentGameOverDialog = null;
+    private boolean gameOverDialogShowing = false;
 
     // ===== ENHANCED QUEUE UI COMPONENTS =====
     private LinearLayout queueInfoPanel;
@@ -833,6 +836,7 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
                 statusText.setText("Game Over! " + winner);
             }
 
+            // Reset buttons to their appropriate state
             if (findMatchButton != null) {
                 findMatchButton.setEnabled(true);
                 String buttonText = currentGameMode == GameMode.LOCAL ? "Start Local Game" : "Find Match";
@@ -847,10 +851,15 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
                 queueStatusText.setVisibility(View.GONE);
             }
 
+            // Hide queue panel if it's visible
+            if (queueInfoPanel != null) {
+                queueInfoPanel.setVisibility(View.GONE);
+            }
+
+            // Show the game over dialog
             showGameOverDialog(winner);
         });
     }
-
     // ===== HELPER METHODS =====
 
     public void handleMatchFound(ServerGameState gameState, boolean isPlayer1, String playerId) {
@@ -921,17 +930,26 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
             updateUIForActiveGame(currentGameId, isPlayer1);
             String playerRole = isPlayer1 ? "Player 1 (Red)" : "Player 2 (Blue)";
 
+            // FIXED: Determine correct turn state immediately
+            boolean isCurrentPlayerTurn = (isPlayer1 && gameState.isPlayer1Turn()) ||
+                    (!isPlayer1 && !gameState.isPlayer1Turn());
+            String turnStatus = isCurrentPlayerTurn ? "Your turn" : "Opponent's turn";
+
             if (statusText != null) {
-                statusText.setText("Match found! You are " + playerRole);
+                statusText.setText(turnStatus); // Show turn status, not generic message
             }
+
             if (cancelMatchButton != null) {
                 cancelMatchButton.setVisibility(View.GONE);
             }
             if (queueStatusText != null) {
                 queueStatusText.setVisibility(View.GONE);
             }
+            if (queueInfoPanel != null) {
+                queueInfoPanel.setVisibility(View.GONE);
+            }
 
-            Toast.makeText(this, "Match found! Game starting...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Game ready! You are " + playerRole, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Match successfully processed - Game: " + currentGameId + ", Role: " + playerRole);
         });
     }
@@ -1044,6 +1062,7 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
         queueStatusText = findViewById(R.id.queue_status_text);
         resetButton = findViewById(R.id.reset_button);
         findMatchButton = findViewById(R.id.find_match_button);
+        rulesButton = findViewById(R.id.rules_button);
         cancelMatchButton = findViewById(R.id.cancel_match_button);
 
         // ADD THESE MISSING findViewById CALLS:
@@ -1088,7 +1107,16 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
         if (resetButton != null) {
             resetButton.setOnClickListener(v -> {
                 if (!isActivityDestroyed && !isActivityFinishing) {
-                    showResetDialog();
+                    showResetDialog();  // Only show reset dialog for reset button
+                }
+            });
+        }
+
+        // FIXED: Rules button should only show rules, not reset dialog
+        if (rulesButton != null) {
+            rulesButton.setOnClickListener(v -> {
+                if (!isActivityDestroyed && !isActivityFinishing) {
+                    showRulesDialog();  // Only show rules dialog
                 }
             });
         }
@@ -1143,7 +1171,6 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
             Log.w(TAG, "start_local_game_button not found in layout");
         }
     }
-
 
     private void handleFindMatchButton() {
         if (currentGameMode == GameMode.LOCAL) {
@@ -1210,29 +1237,114 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
 
 
     private void showGameOverDialog(String message) {
+        // Prevent multiple dialogs
+        if (gameOverDialogShowing) {
+            Log.d(TAG, "Game over dialog already showing, ignoring duplicate");
+            return;
+        }
+
+        gameOverDialogShowing = true;
+
+        // Dismiss any existing dialog first
+        if (currentGameOverDialog != null && currentGameOverDialog.isShowing()) {
+            currentGameOverDialog.dismiss();
+        }
+
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     .setTitle("Game Over!")
                     .setMessage(message)
-                    .setPositiveButton("OK", null);
+                    .setCancelable(false) // Prevent accidental dismissal
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        dialog.dismiss();
+                        currentGameOverDialog = null;
+                        gameOverDialogShowing = false;
+                        resetUIAfterGameEnd();
+                    });
 
             if (currentGameMode == GameMode.LOCAL) {
                 builder.setNeutralButton("Play Again", (dialog, which) -> {
-                    if (localGameManager != null) {
-                        localGameManager.startNewGame();
-                    }
+                    dialog.dismiss();
+                    currentGameOverDialog = null;
+                    gameOverDialogShowing = false;
+                    resetUIAfterGameEnd();
+
+                    // Add small delay to prevent rapid successive calls
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (localGameManager != null && !isActivityDestroyed && !isActivityFinishing) {
+                            localGameManager.startNewGame();
+                        }
+                    }, 100);
                 });
             } else {
                 builder.setNeutralButton("Find New Match", (dialog, which) -> {
-                    startMatchmaking();
+                    dialog.dismiss();
+                    currentGameOverDialog = null;
+                    gameOverDialogShowing = false;
+                    resetUIAfterGameEnd();
+
+                    // Add small delay to prevent rapid successive calls
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (!isActivityDestroyed && !isActivityFinishing) {
+                            startMatchmaking();
+                        }
+                    }, 100);
                 });
             }
 
-            builder.show();
+            currentGameOverDialog = builder.create();
+            currentGameOverDialog.show();
+
         } catch (Exception e) {
             Log.w(TAG, "Could not show game over dialog", e);
+            gameOverDialogShowing = false;
+            currentGameOverDialog = null;
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            resetUIAfterGameEnd();
         }
     }
+    private void resetUIAfterGameEnd() {
+        runOnUiThread(() -> {
+            if (currentGameMode == GameMode.LOCAL) {
+                // Reset local game UI properly
+                if (statusText != null) {
+                    statusText.setText("Local Mode: Press 'Start Game' to begin");
+                }
+
+                if (findMatchButton != null) {
+                    findMatchButton.setText("Start Local Game");
+                    findMatchButton.setEnabled(true);
+                }
+
+                if (gameIdText != null) {
+                    gameIdText.setText("Local Game Mode");
+                }
+
+                if (playerRoleText != null) {
+                    playerRoleText.setText("Two players on same device");
+                }
+
+                // Ensure proper GameView height for local mode
+                if (gameView != null) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) gameView.getLayoutParams();
+                    params.weight = 0.75f; // Normal height for local mode
+                    gameView.setLayoutParams(params);
+                }
+
+            } else {
+                updateUIForNoGame();
+                // Ensure proper GameView height for online mode
+                if (gameView != null) {
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) gameView.getLayoutParams();
+                    params.weight = 0.75f; // Normal height when not in queue
+                    gameView.setLayoutParams(params);
+                }
+            }
+        });
+    }
+
+
+
 
     private void setupBackPressedCallback() {
         backPressedCallback = new OnBackPressedCallback(true) {
@@ -1258,6 +1370,33 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
         } catch (Exception e) {
             Log.w(TAG, "Could not show exit dialog", e);
             exitApplication();
+        }
+    }
+
+    private void showRulesDialog() {
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle("NaarPazham Game Rules")
+                    .setMessage("HOW TO PLAY:\n\n" +
+                            "1. SETUP PHASE:\n" +
+                            "   • Each player places 3 pieces on the board\n" +
+                            "   • Player 1 (Red) goes first, then Player 2 (Blue)\n\n" +
+                            "2. MOVEMENT PHASE:\n" +
+                            "   • After all 6 pieces are placed, players take turns\n" +
+                            "   • Move your piece to any adjacent empty space\n" +
+                            "   • Adjacent means horizontal, vertical, or diagonal\n\n" +
+                            "3. WINNING:\n" +
+                            "   • First player to get 3 pieces in a row wins\n" +
+                            "   • Winning lines can be horizontal, vertical, or diagonal\n\n" +
+                            "4. TURNS:\n" +
+                            "   • Players alternate turns throughout the game\n" +
+                            "   • Current player is shown in the status area")
+                    .setPositiveButton("Got it!", null)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        } catch (Exception e) {
+            Log.w(TAG, "Could not show rules dialog", e);
+            Toast.makeText(this, "Rules: Place 3 pieces, then move to adjacent spaces. Get 3 in a row to win!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1401,7 +1540,14 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
         Log.d(TAG, "onDestroy called - cleaning up resources");
         isActivityDestroyed = true;
 
+
         performImmediateCleanup();
+
+        if (currentGameOverDialog != null && currentGameOverDialog.isShowing()) {
+            currentGameOverDialog.dismiss();
+        }
+        currentGameOverDialog = null;
+        gameOverDialogShowing = false;
 
         if (backPressedCallback != null) {
             backPressedCallback.remove();
@@ -1423,6 +1569,7 @@ public class MainActivity extends AppCompatActivity implements UIUpdateListener,
             matchmakingThread = null;
             matchmakingHandler = null;
         }
+
 
         super.onDestroy();
     }
