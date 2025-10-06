@@ -1,10 +1,10 @@
-# NearPazham (நார் பழம்)
+# NaarPazham (நார் பழம்)
 
 A strategic two-player board game for Android featuring both local and online multiplayer modes.
 
 ## Overview
 
-NearPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.
+NaarPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.
 
 ## Game Modes
 
@@ -88,6 +88,13 @@ NearPazham is a turn-based strategy game where two players compete to capture te
 - **Polling Strategy**: Periodic game state updates during active games
 - **Error Handling**: Comprehensive failure recovery with user feedback
 
+### Backend Infrastructure
+- **Framework**: Spring Boot (Java-based REST API)
+- **Hosting**: AWS Elastic Beanstalk (EB)
+- **Database**: [Your database - e.g., PostgreSQL, MySQL, DynamoDB]
+- **API Design**: RESTful endpoints for matchmaking and game state management
+- **Scalability**: Auto-scaling via AWS EB for handling variable player load
+
 ### UI/UX Implementation
 - **Material Design Guidelines**: Consistent visual language
 - **Responsive Layouts**: Weight-based layouts for different screen sizes
@@ -123,7 +130,7 @@ NearPazham is a turn-based strategy game where two players compete to capture te
 ## Project Structure
 
 ```
-com.gfg.NearPazham/
+com.gfg.NaarPazham/
 ├── MainActivity.java           # Main activity and UI orchestration
 ├── GameView.java              # Custom view for game rendering
 ├── GameState.java             # Game logic and state management
@@ -159,10 +166,6 @@ com.gfg.NearPazham/
 - Friend list and direct challenge system
 - Chat functionality during games
 - Statistics dashboard and achievement system
-
-## License
-
-[Specify your license here]
 
 ## Credits
 
