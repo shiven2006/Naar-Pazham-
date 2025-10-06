@@ -4,7 +4,7 @@ A strategic two-player board game for Android featuring both local and online mu
 
 ## Overview
 
-NaarPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.
+NaarPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.Currently, it is currently in closed testing phase so will be launched around mid October so for now, you can fork this and play locally by running it on an emulator/mobile. 
 
 ## Game Modes
 
@@ -150,16 +150,9 @@ com.gfg.NaarPazham/
 - Internet connection for online mode
 - ~50MB storage space
 
-## Installation
-
-1. Clone the repository
-2. Open in Android Studio
-3. Sync Gradle dependencies
-4. Build and run on device or emulator
 
 ## Future Enhancements
 
-- ELO rating system for competitive play
 - Game replay and move history
 - Custom board themes and piece designs
 - Tournament mode with bracket system
