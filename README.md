@@ -154,6 +154,7 @@ com.gfg.NaarPazham/
 ## Future Enhancements
 
 - Game replay and move history
+- Optimize database, caching, and load balancing to handle more concurrent players; currently it can handle upto 500 concurrent players
 - Custom board themes and piece designs
 - Tournament mode with bracket system
 - Friend list and direct challenge system
