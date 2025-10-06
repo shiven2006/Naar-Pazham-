@@ -1,10 +1,10 @@
-# NaarPazham (நார் பழம்)
+# NearPazham (நார் பழம்)
 
 A strategic two-player board game for Android featuring both local and online multiplayer modes.
 
 ## Overview
 
-NaarPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.
+NearPazham is a turn-based strategy game where two players compete to capture territory and outmaneuver their opponent. The game combines simple rules with deep strategic gameplay, offering both casual local play and competitive online matchmaking.
 
 ## Game Modes
 
@@ -123,7 +123,7 @@ NaarPazham is a turn-based strategy game where two players compete to capture te
 ## Project Structure
 
 ```
-com.gfg.NaarPazham/
+com.gfg.NearPazham/
 ├── MainActivity.java           # Main activity and UI orchestration
 ├── GameView.java              # Custom view for game rendering
 ├── GameState.java             # Game logic and state management
