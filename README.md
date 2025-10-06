@@ -91,7 +91,7 @@ NaarPazham is a turn-based strategy game where two players compete to capture te
 ### Backend Infrastructure
 - **Framework**: Spring Boot (Java-based REST API)
 - **Hosting**: AWS Elastic Beanstalk (EB)
-- **Database**: [Your database - e.g., PostgreSQL, MySQL, DynamoDB]
+- **Database**: None; Could add it in future.
 - **API Design**: RESTful endpoints for matchmaking and game state management
 - **Scalability**: Auto-scaling via AWS EB for handling variable player load
 
