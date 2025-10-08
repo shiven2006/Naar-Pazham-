@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NetworkService {
     private static final String TAG = "NetworkService";
-    private static final String BASE_URL = "http://production-env.eba-nzvhkrn5.us-east-1.elasticbeanstalk.com";
+    private static final String BASE_URL = URL;
     private RequestQueue requestQueue;
     private static NetworkService instance;
     private Context context;
